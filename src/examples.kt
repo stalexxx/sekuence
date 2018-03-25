@@ -4,7 +4,6 @@
 fun fiveThroughtNine(): Sequence<Int> = choose(5, 9)
 
 //A random element from a vector
-
 //(def languages (ret/of ["clojure" "haskell" "erlang" "scala" "python"]))
 //(ret/sample languages)
 //;; => ("clojure" "scala" "clojure" "haskell" "clojure" "erlang" "erlang"
