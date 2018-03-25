@@ -1,6 +1,6 @@
-fun int(): Sequence<Int> = generateSequence { Rand.nextInt }
+fun int(min: Int = 0, max: Int = 10): Sequence<Int> = generateSequence { Rand.int(min, max) }
 fun bool(): Sequence<Boolean> = generateSequence { Rand.nextBool }
-fun posInt(): Sequence<Int> = int().fmap(Math::abs)
+fun posInt(max: Int = 10): Sequence<Int> = int(0, max)
 
 fun oneOfAny(vararg gens: Sequence<Any>): Sequence<Any> = OneOfSequenceThread(gens)
 fun <T : Any> oneOf(vararg gens: Sequence<T>): Sequence<T> = OneOfSequenceThread(gens)
@@ -19,11 +19,13 @@ fun <T> genList(from: Sequence<T>, min: Int = 0, max: Int = 10): Sequence<List<T
     from.take(Rand.int(min, max)).toList()
 }
 
-fun <T : Any> Sequence<T>.fmap(mapper: (T) -> T): Sequence<T> = MappingSequenceThread(this, mapper = mapper)
+fun <T : Any> Sequence<T>.fmap(mapper: (T) -> T): Sequence<T> = wrap(mapper)
+
 fun <T> Sequence<T>.except(predicate: (T) -> Boolean): Sequence<T> = FilteringSequenceThread(this, predicate = predicate)
 
+
 fun frequency(vararg freqs: Pair<Number, Sequence<Any>>): Sequence<Any> = generateSequence {
-    //TODO()
+    freqs.map {  }
     freqs.first().second.iterator().next()
 }
 
@@ -35,7 +37,7 @@ fun <T : Any, R : Any> Sequence<T>.bind(binder: (T) -> R): Sequence<R> = generat
     binder(iterator().next())
 }
 
-fun <A : Any, B : Any, R : Any> bind(g1: Sequence<A>, g2: Sequence<B>, binder: (A, B) -> R): Sequence<R>  = generateSequence {
+fun <A : Any, B : Any, R : Any> bind(g1: Sequence<A>, g2: Sequence<B>, binder: (A, B) -> R): Sequence<R> = generateSequence {
     binder(g1.iterator().next(), g2.iterator().next())
 }
 
@@ -43,19 +45,35 @@ fun <A : Any, B : Any, C : Any, R : Any> bind(g1: Sequence<A>, g2: Sequence<B>, 
     binder(g1.iterator().next(), g2.iterator().next(), g3.iterator().next())
 }
 
+fun <T : Any, R> let(obj: T, init: T.() -> R): R = obj.init()
+
+fun <T : Any> Sequence<T>.wrap(next: (T) -> T) : Sequence<T> = WrappingSeq(this, next)
+
 //implementation
+
+class WrappingSeq<T>(val sequence: Sequence<T>, val next: (T) -> T) : Sequence<T> {
+    override fun iterator(): Iterator<T> = let(object {
+        val it = sequence.iterator()
+    }) {
+        object : Iterator<T> {
+            override fun next(): T = next(it.next())
+            override fun hasNext(): Boolean = it.hasNext()
+        }
+    }
+}
 
 class MappingSequenceThread<T>(
     val sequence: Sequence<T>,
     val mapper: (T) -> T
 
 ) : Sequence<T> {
-    override fun iterator(): Iterator<T> = object : Iterator<T> {
-        val iterator: Iterator<T> = sequence.iterator()
-
-        override fun next(): T = mapper(iterator.next())
-
-        override fun hasNext(): Boolean = iterator.hasNext()
+    override fun iterator(): Iterator<T> = let(object {
+        val it = sequence.iterator()
+    }) {
+        object : Iterator<T> {
+            override fun next(): T = mapper(it.next())
+            override fun hasNext(): Boolean = it.hasNext()
+        }
     }
 }
 
@@ -69,7 +87,7 @@ class FilteringSequenceThread<T>(
 
         override fun next(): T =
             iterator.next().let {
-                if (predicate(it)) it else next()
+                if (!predicate(it)) it else next()
             }
 
         override fun hasNext(): Boolean = iterator.hasNext()

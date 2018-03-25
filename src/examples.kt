@@ -79,9 +79,13 @@ fun vectorAndElem(): Sequence<Pair<List<Int>, Int>> =
     genList(int().except { it == 13 })
         .bind { it to it.randElement() }
 
+
 fun main(args: Array<String>) {
     fiveThroughtNine().sample(5).print()
     languages().sample(5).print()
+    evenAndPositive().sample(10).print()
+    anythingButFive().sample(10).print()
+
 }
 
 fun <T : Any> Sequence<T>.sample(count: Int = 10): Sequence<T> {
