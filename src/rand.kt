@@ -14,17 +14,17 @@ object Rand {
     val nextBool: Boolean
         get() = Random().nextBoolean()
 
-    fun nextString(min: Int = 0, max: Int) = IntRange(0, int(min, max)).map { 'a' + randInt(26) }.joinToString(separator = "")
+    fun nextString(min: Int = 0, max: Int) = IntRange(0, int(min, max)).map { 'a' + randInt(max = 26) }.joinToString(separator = "")
     val nextInt
         get() = random.nextInt()
 
     fun randName(i: Int): String =
             IntRange(0, i - 1).joinToString(" ") { nextString(5, 10) }
 
-    fun randInt(min: Int, max: Int): Int = Math.round(max * nextDouble).toInt()
+    fun randInt(min: Int = 0, max: Int): Int = Math.round(max * nextDouble).toInt()
     fun randLong(min: Long, max: Long): Long = Math.round(max * nextDouble)
 
-    fun int(min: Int, max: Int): Int = min + Random().nextInt((max - min) + 1)
+    fun int(min: Int = 0, max: Int): Int = min + Random().nextInt((max - min) + 1)
 
     val nInstant: Instant
         get() {
@@ -42,6 +42,10 @@ object Rand {
     private fun datetimeDuration(): Duration = dateDuration() + timeDuration()
 
     fun <T : Any> randomSublist(racers: List<T>): List<T> = racers.map { if (nextBool) it else null }. filter { it != null }.map { it!! }.toList()
-
+    fun <T> randElement(elts: Array<out T>): T? = elts[random.nextInt(elts.size)]
 //    fun enum(values: Array<FinalResult>) = values[randInt(values.size - 1)]
+
+
 }
+
+fun <T> List<T>.randElement() = get(Rand.int(max = size))
