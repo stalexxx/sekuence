@@ -1,3 +1,4 @@
+//core gens
 fun ints(min: Int = 0, max: Int = 10): Sequence<Int> = generateSequence { Rand.int(min, max) }
 fun ints(range: IntRange) = ints(range.start, range.endInclusive)
 
@@ -5,7 +6,6 @@ fun longs(min: Long = 0, max: Long = 10): Sequence<Long> = generateSequence { Ra
 fun longs(range: IntRange) = ints(range.start, range.endInclusive)
 
 fun strings() = of("test")
-fun emails() = of("abs@email")
 
 fun bools(): Sequence<Boolean> = generateSequence { Rand.nextBool }
 fun posInt(max: Int = 10): Sequence<Int> = ints(0, max)
@@ -115,4 +115,12 @@ class OneOfSequenceThread<out T : Any>(val gens: Array<out Sequence<*>>) : Seque
 
         override fun hasNext(): Boolean = iters.any { it.hasNext() }
     }
+}
+
+//app gens
+fun emails(
+    nameGen: Sequence<String> = strings(),
+    domainGen: Sequence<String> = of("ya.ru", "gmail.com", "yahoo.com", "mail.ru")
+): Sequence<String> {
+    return bind(nameGen, domainGen, { name: String, domain: String -> "$name@$domain" })
 }
