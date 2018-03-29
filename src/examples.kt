@@ -84,7 +84,10 @@ fun vectorAndElem(): Sequence<Pair<List<Int>, Int>> =
 data class User(var id: Int, var login: String, var email: String)
 
 
-fun genUsers() = bind<User>(ints(1..100), names().fmap(String::toLowerCase), emails(strings()))
+fun genUsers() = bind<User>(
+    ints(1..100),
+    names().fmap(String::toLowerCase),
+    concat(strings(), ret("@"), names()))
 
 
 inline fun <reified T : Any> genObj(crossinline function: T.() -> Unit): Sequence<T> = generateSequence<T> {
