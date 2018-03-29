@@ -1,6 +1,14 @@
-fun int(min: Int = 0, max: Int = 10): Sequence<Int> = generateSequence { Rand.int(min, max) }
-fun bool(): Sequence<Boolean> = generateSequence { Rand.nextBool }
-fun posInt(max: Int = 10): Sequence<Int> = int(0, max)
+fun ints(min: Int = 0, max: Int = 10): Sequence<Int> = generateSequence { Rand.int(min, max) }
+fun ints(range: IntRange) = ints(range.start, range.endInclusive)
+
+fun longs(min: Long = 0, max: Long = 10): Sequence<Long> = generateSequence { Rand.long(min, max) }
+fun longs(range: IntRange) = ints(range.start, range.endInclusive)
+
+fun strings() = of("test")
+fun emails() = of("abs@email")
+
+fun bools(): Sequence<Boolean> = generateSequence { Rand.nextBool }
+fun posInt(max: Int = 10): Sequence<Int> = ints(0, max)
 
 fun oneOfAny(vararg gens: Sequence<Any>): Sequence<Any> = OneOfSequenceThread(gens)
 fun <T : Any> oneOf(vararg gens: Sequence<T>): Sequence<T> = OneOfSequenceThread(gens)

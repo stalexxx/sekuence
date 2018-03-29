@@ -11,7 +11,7 @@ fun languages(): Sequence<String> = of("clojure", "haskell", "erlang", "scala", 
 ```
 Combination with probabilities
 ```kotlin
-fun mostlyInts(): Sequence<Any> = frequency(9 to int(), 1 to ret(1))
+fun mostlyInts(): Sequence<Any> = frequency(9 to ints(), 1 to ret(1))
 ```
 
 Positive and Even
@@ -25,26 +25,35 @@ fun powerOfTwo(): Sequence<Int> = posInt().fmap { Math.pow(2.0, it.toDouble()).t
 
 ```
 
-Sequence of sorted int lists
+Sequence of sorted ints lists
 
 ```kotlin
-fun sortedLists(): Sequence<List<Int>> = genList(int()).fmap { it.sorted() }
+fun sortedLists(): Sequence<List<Int>> = genList(ints()).fmap { it.sorted() }
 ```
 
 Pair example
 ```kotlin
-fun intAndBoolean(): Sequence<Pair<Int, Boolean>> = genPair(int(), bool())
+fun intAndBoolean(): Sequence<Pair<Int, Boolean>> = genPair(ints(), bool())
 ```
 Anything by five
 
 ```kotlin
-fun anythingButFive(): Sequence<Int> = int().except { it == 5 }
+fun anythingButFive(): Sequence<Int> = ints().except { it == 5 }
 ```
 
 
-Binded
+Binding
 ```kotlin
 fun vectorAndElem(): Sequence<Pair<List<Int>, Int>> =
-    genList(int().except { it == 13 })
+    genList(ints().except { it == 13 })
         .bind { it to it.randElement() }
+        
 ```
+
+Binding over type
+```kotlin
+data class User(var id: Int, var login: String, var email: String)
+fun genUsers(): Sequence<User> = bind(ints(1..100), strings(), emails(), ::User)
+
+```
+

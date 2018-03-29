@@ -25,6 +25,9 @@ object Rand {
     fun randLong(min: Long, max: Long): Long = Math.round(max * nextDouble)
 
     fun int(min: Int = 0, max: Int): Int = min + Random().nextInt((max - min) + 1)
+    fun long(min: Long, max: Long): Long? {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     val nInstant: Instant
         get() {
@@ -43,6 +46,7 @@ object Rand {
 
     fun <T : Any> randomSublist(racers: List<T>): List<T> = racers.map { if (nextBool) it else null }. filter { it != null }.map { it!! }.toList()
     fun <T> randElement(elts: Array<out T>): T? = elts[random.nextInt(elts.size)]
+
 //    fun enum(values: Array<FinalResult>) = values[randInt(values.size - 1)]
 
 
