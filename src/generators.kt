@@ -1,5 +1,6 @@
 //core gens
 fun ints(min: Int = 0, max: Int = 10): Sequence<Int> = generateSequence { Rand.int(min, max) }
+
 fun ints(range: IntRange) = ints(range.start, range.endInclusive)
 
 fun longs(min: Long = 0, max: Long = 10): Sequence<Long> = generateSequence { Rand.long(min, max) }
@@ -31,9 +32,8 @@ fun <T : Any> Sequence<T>.fmap(mapper: (T) -> T): Sequence<T> = wrap(mapper)
 
 fun <T> Sequence<T>.except(predicate: (T) -> Boolean): Sequence<T> = FilteringSequenceThread(this, predicate = predicate)
 
-
 fun frequency(vararg freqs: Pair<Number, Sequence<Any>>): Sequence<Any> = generateSequence {
-    freqs.map {  }
+    freqs.map { }
     freqs.first().second.iterator().next()
 }
 
@@ -41,21 +41,54 @@ fun <A : Any, B : Any> genPair(gen1: Sequence<A>, gen2: Sequence<B>): Sequence<P
     gen1.iterator().next() to gen2.iterator().next()
 }
 
-fun <T : Any, R : Any> Sequence<T>.bind(binder: (T) -> R): Sequence<R> = generateSequence {
-    binder(iterator().next())
-}
+fun <T : Any, R : Any> Sequence<T>.bind(binder: (T) -> R): Sequence<R> =
+    let(object {
+        val it1 = iterator()
+    }) {
+        generateSequence {
+            binder(it1.next())
+        }
+    }
 
-fun <A : Any, B : Any, R : Any> bind(g1: Sequence<A>, g2: Sequence<B>, binder: (A, B) -> R): Sequence<R> = generateSequence {
-    binder(g1.iterator().next(), g2.iterator().next())
-}
+fun <A : Any, B : Any, R : Any> bind(g1: Sequence<A>, g2: Sequence<B>, binder: (A, B) -> R): Sequence<R> =
+    let(object {
+        val it1 = g1.iterator()
+        val it2 = g2.iterator()
+    }) {
+        generateSequence {
+            binder(it1.next(), it2.next())
+        }
+    }
 
-fun <A : Any, B : Any, C : Any, R : Any> bind(g1: Sequence<A>, g2: Sequence<B>, g3: Sequence<C>, binder: (A, B, C) -> R): Sequence<R> = generateSequence {
-    binder(g1.iterator().next(), g2.iterator().next(), g3.iterator().next())
-}
+fun <A : Any, B : Any, C : Any, R : Any> bind(g1: Sequence<A>, g2: Sequence<B>, g3: Sequence<C>, binder: (A, B, C) -> R): Sequence<R> =
+
+    let(object {
+        val it1 = g1.iterator()
+        val it2 = g2.iterator()
+        val it3 = g3.iterator()
+    }) {
+        generateSequence {
+            binder(it1.next(), it2.next(), it3.next())
+        }
+    }
+
+inline fun <reified R : Any> bind(g1: Sequence<Any>, g2: Sequence<Any>, g3: Sequence<Any>): Sequence<R> =
+    let(object {
+        val i1 = g1.iterator()
+        val i2 = g2.iterator()
+        val i3 = g3.iterator()
+    }) {
+        generateSequence {
+            R::class.createInstance(3,
+                i1.next(),
+                i2.next(),
+                i3.next())
+        }
+    }
 
 fun <T : Any, R> let(obj: T, init: T.() -> R): R = obj.init()
 
-fun <T : Any> Sequence<T>.wrap(next: (T) -> T) : Sequence<T> = WrappingSeq(this, next)
+fun <T : Any> Sequence<T>.wrap(next: (T) -> T): Sequence<T> = WrappingSeq(this, next)
 
 //implementation
 
@@ -124,3 +157,5 @@ fun emails(
 ): Sequence<String> {
     return bind(nameGen, domainGen, { name: String, domain: String -> "$name@$domain" })
 }
+
+fun names() = of("John", "Bill", "Hual")

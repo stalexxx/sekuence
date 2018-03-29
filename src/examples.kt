@@ -11,7 +11,7 @@ fun fiveThroughtNine(): Sequence<Int> = choose(5, 9)
 //;; => ("clojure" "scala" "clojure" "haskell" "clojure" "erlang" "erlang"
 //;; =>  "erlang" "haskell" "python")
 
-fun languages(): Sequence<String> = of("clojure", "haskell", "erlang", "scala", "python")
+fun languages(): Sequence<String> = of("kotlin", "clojure", "haskell", "erlang", "scala", "python")
 
 //An integer or nil
 //
@@ -82,13 +82,17 @@ fun vectorAndElem(): Sequence<Pair<List<Int>, Int>> =
         .bind { it to it.randElement() }
 
 data class User(var id: Int, var login: String, var email: String)
-fun genUsers(): Sequence<User> = bind(ints(1..100), strings(), emails(strings()), ::User)
+
+
+fun genUsers() = bind<User>(ints(1..100), names().fmap(String::toLowerCase), emails(strings()))
+
 
 inline fun <reified T : Any> genObj(crossinline function: T.() -> Unit): Sequence<T> = generateSequence<T> {
     T::class.createInstance().apply(function)
 }
 
 fun main(args: Array<String>) {
+    genUsers().sample(5).print()
     fiveThroughtNine().sample(5).print()
     languages().sample(5).print()
     evenAndPositive().sample(10).print()
@@ -100,5 +104,5 @@ fun <T : Any> Sequence<T>.sample(count: Int = 10): Sequence<T> {
 }
 
 private fun <T : Any> Sequence<T>.print() {
-    toList().joinToString(postfix = "\n", separator = " ").also { print(it) }
+    toList().joinToString(prefix = "[ ", postfix = " ]\n", separator = " ").also { print(it) }
 }
